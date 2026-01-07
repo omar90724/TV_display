@@ -1,3 +1,4 @@
+const PORT = process.env.PORT || 443;
 const express = require('express');
 const https = require('https');
 const { Server } = require("socket.io");
@@ -162,4 +163,6 @@ app.delete('/api/media/:id/:filename', (req, res) => {
     res.sendStatus(200);
 });
 
-server.listen(3000, () => console.log('Servidor HTTPS Ativo na porta 3000'));
+server.listen(PORT, '0.0.0.0', () => {
+    console.log(`🚀 Servidor rodando em: https://localhost:${PORT}`);
+});
