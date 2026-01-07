@@ -1,0 +1,16 @@
+[
+  {
+    "filename": "politica.jpg",
+    "displayDuration": 15,
+    "type": "image",
+    "expiresAt": 1768559400000,
+    "order": 4
+  },
+  {
+    "filename": "3.mp4",
+    "displayDuration": 15,
+    "type": "video",
+    "expiresAt": 1769783400000,
+    "order": 2
+  }
+]

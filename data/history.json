@@ -1,0 +1,31 @@
+[
+  {
+    "filename": "civic.jpg",
+    "duration": 7,
+    "displayDuration": 4,
+    "type": "image",
+    "expiresAt": 1765280400000,
+    "order": 1
+  },
+  {
+    "filename": "https://google.com",
+    "displayDuration": 15,
+    "type": "url",
+    "expiresAt": 1765363320000,
+    "order": 2
+  },
+  {
+    "filename": "https://app.powerbi.com/groups/me/reports/aa94bdd0-f60f-47f8-b815-34797d5eafd6/ReportSectionfe5700d82d9707b30053?experience=power-bi",
+    "displayDuration": 15,
+    "type": "url",
+    "expiresAt": 1765363500000,
+    "order": 5
+  },
+  {
+    "filename": "1.mp4",
+    "displayDuration": 15,
+    "type": "video",
+    "expiresAt": 1765377060000,
+    "order": 2
+  }
+]

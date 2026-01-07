@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8" />
+  <title>Histórico de Mídia - [Player ID]</title>
+  <style>
+    /* ... Estilos CSS (permanecem os mesmos) ... */
+    body { font-family: Arial, sans-serif; margin: 0; background: #f4f4f4; }
+    .container { max-width: 900px; margin: 40px auto; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); background: white; }
+    h1 { color: #333; }
+    a { color: #007bff; text-decoration: none; }
+    .media-list { display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; margin-top: 20px;}
+    .media-item { background: #fcfcfc; padding: 10px; border: 1px solid #e0e0e0; width: 200px; opacity: 0.7; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);}
+    .media-item img, .media-item video { max-width: 100%; height: auto; display: block; margin-bottom: 5px;}
+    .media-item.url-item { border-left: 5px solid #007bff; }
+    .media-details p { margin: 3px 0; font-size: 0.9em; }
+    .expired-label { color: #dc3545; font-weight: bold; }
+    .empty-message { font-size: 1.2em; color: #666; margin-top: 30px; text-align: center; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>📜 Histórico de Mídia (Expirada) - <span id="historyTitle">...</span></h1>
+    <p><a href="index.html">← Voltar para a Lista de Players</a></p>
+    <hr>
+
+    <div class="media-list" id="historyList"></div>
+  </div>
+
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const playerId = urlParams.get('id');
+
+    if (!playerId) {
+        document.body.innerHTML = '<h1>Erro: Player ID não encontrado na URL. <a href="index.html">Voltar</a></h1>';
+        throw new Error('Player ID not found.');
+    }
+    document.getElementById('historyTitle').textContent = playerId;
+
+    const container = document.getElementById('historyList');
+
+    async function fetchHistory() {
+      const res = await fetch(`/api/history/${playerId}`); // <-- Rota com ID
+      const history = await res.json();
+      container.innerHTML = '';
+      
+      if (history.length === 0) {
+          container.innerHTML = '<p class="empty-message">O histórico de mídia expirada está vazio para este player.</p>';
+          return;
+      }
+      
+      // ... (Restante da renderização permanece igual)
+      history.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'media-item';
+
+        let mediaHtml = '';
+        if (item.type === 'url') {
+            div.className += ' url-item';
+            try {
+                const urlName = new URL(item.filename).hostname;
+                mediaHtml = `
+                <div style="text-align:center; height: 100px; display: flex; align-items: center; justify-content: center; background: #f0f6ff; font-size: 40px; color: #007bff;">
+                    🌐
+                </div>
+                <p style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${urlName}</p>`;
+            } catch {
+                mediaHtml = `<p>🌐 URL Inválida</p>`;
+            }
+        } else if (item.type === 'image') {
+          mediaHtml = `<img src="/uploads/${item.filename}" alt="${item.filename}" />`;
+        } else if (item.type === 'video') {
+          mediaHtml = `<video src="/uploads/${item.filename}" controls></video>`;
+        } else {
+          mediaHtml = `<p>${item.filename}</p>`;
+        }
+        
+        div.innerHTML += mediaHtml;
+        div.innerHTML += `<div class="media-details">`;
+        div.innerHTML += `<p>Nome: ${item.filename}</p>`;
+        
+        const expirationDate = new Date(item.expiresAt).toLocaleString('pt-BR');
+        div.innerHTML += `<p>Expirou em: <span class="expired-label">${expirationDate}</span></p>`;
+        
+        if (item.displayDuration > 0) {
+            div.innerHTML += `<p>Exibição (Segundos): ${item.displayDuration}</p>`;
+        }
+        div.innerHTML += `</div>`;
+
+        container.appendChild(div);
+      });
+    }
+
+    fetchHistory();
+  </script>
+</body>
+</html>

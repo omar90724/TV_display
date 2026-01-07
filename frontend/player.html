@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>body,html{margin:0;padding:0;width:100%;height:100%;background:#000;overflow:hidden;}</style>
+</head>
+<body>
+    <div id="v" style="width:100%;height:100%;"></div>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const id = new URLSearchParams(window.location.search).get('id');
+        let index = 0, list = [];
+
+        async function start() {
+            const r = await fetch(`/api/media/${id}`);
+            const data = await r.json();
+            const now = Date.now();
+            list = data.filter(m => !m.expiresAt || m.expiresAt > now);
+
+            if(!list.length) {
+                document.getElementById('v').innerHTML = "<h1 style='color:#fff;text-align:center;padding-top:20%'>Aguardando Mídia...</h1>";
+                return;
+            }
+            show();
+        }
+
+        function show() {
+            const m = list[index];
+            const div = document.getElementById('v');
+            div.innerHTML = "";
+
+            if (m.type === 'powerbi') {
+            // Se o reportId estiver salvo usa ele, senão pega a primeira parte do filename
+            const rId = m.reportId || m.filename.split('_')[0];
+            let url = `https://app.powerbi.com/reportEmbed?reportId=${rId}&autoAuth=true`;
+            if(m.pageName) url += `&pageName=${m.pageName}`;
+            div.innerHTML = `<iframe src="${url}" style="width:100%;height:100%;border:none;"></iframe>`;
+            } else if(m.type === 'image') {
+                div.innerHTML = `<img src="/uploads/${m.filename}" style="width:100%;height:100%;object-fit:contain;">`;
+            } else if(m.type === 'video') {
+                div.innerHTML = `<video src="/uploads/${m.filename}" autoplay muted style="width:100%;height:100%;"></video>`;
+                div.querySelector('video').onended = next; return;
+            }
+            setTimeout(next, (m.displayDuration || 15) * 1000);
+        }
+
+        function next() { index = (index + 1) % list.length; show(); }
+        io().on(`mediaUpdate:${id}`, () => location.reload());
+        start();
+    </script>
+</body>
+</html>

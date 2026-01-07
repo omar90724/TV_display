@@ -1,0 +1,9 @@
+[
+  {
+    "filename": "http://192.168.110.5:8000/rafisxml?getCurrentJobs&line=all",
+    "displayDuration": 15,
+    "type": "url",
+    "expiresAt": 1765387620000,
+    "order": 9999
+  }
+]

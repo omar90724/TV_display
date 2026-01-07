@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <title>Configurações Globais da TV</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; background: #f4f4f4; }
+        .container { 
+            max-width: 600px; 
+            margin: 40px auto; 
+            background: white; 
+            padding: 20px; 
+            border-radius: 8px; 
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        a { color: #007bff; text-decoration: none; }
+        a:hover { text-decoration: underline; }
+        label { display: block; margin-top: 15px; font-weight: bold; }
+        input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            margin-top: 20px;
+            padding: 10px 15px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        #status {
+            margin-top: 15px;
+            padding: 10px;
+            background: #e9ffed;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+            display: none;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <p><a href="index.html">← Voltar para o Painel de Gerenciamento</a></p>
+        
+        <h1>🛠️ Configurações Globais</h1>
+        <p>Defina aqui o tempo padrão de exibição de **imagens e URLs** em segundos, e a frequência de recarregamento para URLs externas.</p>
+        
+        <form id="configForm">
+            <label for="defaultDuration">Tempo Padrão de Imagem/URL (Segundos):</label>
+            <input type="number" id="defaultDuration" min="1" required>
+            
+            <label for="iframeReloadTime">Recarregar Iframe (Power BI, etc.) a cada (Minutos):</label>
+            <input type="number" id="iframeReloadTime" min="5" required>
+            <small>Mínimo recomendado: 5 minutos. Use um valor alto (ex: 60 min) para reduzir a carga do servidor de origem da URL.</small>
+            <br>
+            <button type="submit">Salvar Configuração</button>
+        </form>
+        
+        <div id="status"></div>
+    </div>
+
+    <script>
+        const form = document.getElementById('configForm');
+        const defaultDurationInput = document.getElementById('defaultDuration');
+        const reloadTimeInput = document.getElementById('iframeReloadTime');
+        const statusDiv = document.getElementById('status');
+        
+        async function loadConfig() {
+            try {
+                const res = await fetch('/api/config');
+                const config = await res.json();
+                defaultDurationInput.value = config.defaultImageDurationSeconds || 15;
+                reloadTimeInput.value = config.iframeReloadMinutes || 60;
+            } catch (error) {
+                console.error('Não foi possível carregar a configuração.', error);
+                defaultDurationInput.value = 15; 
+                reloadTimeInput.value = 60;
+            }
+        }
+        
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const duration = defaultDurationInput.value;
+            const reloadTime = reloadTimeInput.value;
+            
+            try {
+                const res = await fetch('/api/config', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        defaultImageDurationSeconds: parseInt(duration),
+                        iframeReloadMinutes: parseInt(reloadTime) 
+                    })
+                });
+
+                if (res.ok) {
+                    showStatus('Configuração salva com sucesso! O Player foi atualizado.', 'success');
+                } else {
+                    const errorText = await res.text();
+                    showStatus(`Erro ao salvar: ${errorText}`, 'error');
+                }
+            } catch (error) {
+                showStatus('Erro de comunicação com o servidor.', 'error');
+            }
+        });
+        
+        function showStatus(message, type) {
+            statusDiv.textContent = message;
+            statusDiv.style.background = type === 'success' ? '#e9ffed' : '#f8d7da';
+            statusDiv.style.color = type === 'success' ? '#155724' : '#721c24';
+            statusDiv.style.border = type === 'success' ? '1px solid #c3e6cb' : '1px solid #f5c6cb';
+            statusDiv.style.display = 'block';
+            setTimeout(() => {
+                statusDiv.style.display = 'none';
+            }, 5000);
+        }
+
+        loadConfig();
+    </script>
+</body>
+</html>

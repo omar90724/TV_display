@@ -1,0 +1,51 @@
+[
+  {
+    "filename": "http://192.168.110.5:8000/rafisxml?getRejectHistory&line=L11&tf=2025-12-10T07:40:00.0_2025-12-10T15:39:59.0",
+    "displayDuration": 15,
+    "type": "url",
+    "expiresAt": 1765386540000,
+    "order": 9999
+  },
+  {
+    "filename": "http://192.168.110.5:8000/iqscan/rafisxml?getRejectHistory&line=L11&tf=2025-12-10T07:40:00.0_2025-12-10T15:39:59.0",
+    "displayDuration": 15,
+    "type": "url",
+    "expiresAt": 1765387680000,
+    "order": 9999
+  },
+  {
+    "filename": "https://app.powerbi.com/groups/me/reports/aa94bdd0-f60f-47f8-b815-34797d5eafd6/ReportSectionfe5700d82d9707b30053?chromeless=true",
+    "displayDuration": 15,
+    "type": "url",
+    "expiresAt": 1765387800000,
+    "order": 9999
+  },
+  {
+    "filename": "https://oainformatica.com.br",
+    "displayDuration": 15,
+    "type": "url",
+    "expiresAt": 1765399740000,
+    "order": 9999
+  },
+  {
+    "filename": "1 1.jpg",
+    "displayDuration": 15,
+    "type": "image",
+    "expiresAt": 1765400580000,
+    "order": 1
+  },
+  {
+    "filename": "Sem Fome (1).jpg",
+    "displayDuration": 15,
+    "type": "image",
+    "expiresAt": 1766397600000,
+    "order": 1
+  },
+  {
+    "filename": "001.jpeg",
+    "type": "image",
+    "displayDuration": 15,
+    "expiresAt": 1767092340000,
+    "pageName": null
+  }
+]

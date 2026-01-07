@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <title>Lista de Players</title>
+    <style>
+        body { font-family: sans-serif; padding: 40px; background: #f0f2f5; }
+        .card { background: white; padding: 20px; border-radius: 8px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .btn { padding: 8px 12px; text-decoration: none; border-radius: 4px; border: none; cursor: pointer; color: white; margin-left: 5px; font-size: 13px; }
+        .btn-manage { background: #007bff; }
+        .btn-edit { background: #ffc107; color: #000; }
+        .btn-delete { background: #dc3545; }
+        input { padding: 8px; margin-right: 5px; border-radius: 4px; border: 1px solid #ccc; }
+    </style>
+</head>
+<body>
+    <h1>📺 Administração das TVs do parque industrial</h1>
+    
+    <form id="addForm" style="margin-bottom: 30px; background: #fff; padding: 20px; border-radius: 8px;">
+        <input type="text" id="pId" placeholder="ID da TV (Ex: RECEPCAO)" required>
+        <input type="text" id="pName" placeholder="Nome da TV (Ex: TV Entrada)" required>
+        <button type="submit" style="padding: 8px 15px; cursor: pointer;">Adicionar Nova TV</button>
+    </form>
+
+    <div id="list">Carregando TVs...</div>
+
+    <script>
+        async function load() {
+            try {
+                const r = await fetch('/api/players');
+                const data = await r.json();
+                const listDiv = document.getElementById('list');
+                
+                if (data.length === 0) {
+                    listDiv.innerHTML = "Nenhum player cadastrado.";
+                    return;
+                }
+
+                listDiv.innerHTML = data.map(p => `
+                    <div class="card">
+                        <span><strong>${p.name}</strong> <small>(ID: ${p.id})</small></span>
+                        <div>
+                            <a href="manager.html?id=${p.id}" class="btn btn-manage">Gerir Mídia</a>
+                            <button onclick="editPlayer('${p.id}', '${p.name}')" class="btn btn-edit">Editar Nome</button>
+                            <button onclick="deletePlayer('${p.id}')" class="btn btn-delete">Eliminar</button>
+                        </div>
+                    </div>
+                `).join('');
+            } catch(e) { 
+                document.getElementById('list').innerHTML = "Erro ao ligar ao servidor."; 
+            }
+        }
+
+        // Criar
+        document.getElementById('addForm').onsubmit = async (e) => {
+            e.preventDefault();
+            await fetch('/api/players', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    id: document.getElementById('pId').value.toUpperCase().replace(/\s/g, '_'), 
+                    name: document.getElementById('pName').value
+                })
+            });
+            e.target.reset();
+            load();
+        };
+
+        // Editar
+        async function editPlayer(id, currentName) {
+            const newName = prompt(`Editar nome para o ID ${id}:`, currentName);
+            if (newName && newName !== currentName) {
+                await fetch(`/api/players/edit/${id}`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ newName })
+                });
+                load();
+            }
+        }
+
+        // Eliminar
+        async function deletePlayer(id) {
+            if (confirm(`Tem certeza que deseja eliminar essa TV ${id}? Isso apagará todas as mídias dela.`)) {
+                await fetch(`/api/players/delete/${id}`, { method: 'POST' });
+                load();
+            }
+        }
+
+        load();
+    </script>
+</body>
+</html>
